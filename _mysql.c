@@ -1467,16 +1467,18 @@ _mysql_ConnectionObject_change_user(
 {
     char *user, *pwd=NULL, *db=NULL;
     int r;
-        static char *kwlist[] = { "user", "passwd", "db", NULL } ;
+    static char *kwlist[] = { "user", "passwd", "db", NULL };
 
     if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s|ss:change_user",
                      kwlist, &user, &pwd, &db))
         return NULL;
+
     check_connection(self);
-    Py_BEGIN_ALLOW_THREADS
-        r = mysql_change_user(&(self->connection), user, pwd, db);
-    Py_END_ALLOW_THREADS
-    if (r)     return _mysql_Exception(self);
+    Py_BEGIN_ALLOW_THREADS;
+    r = mysql_change_user(&(self->connection), user, pwd, db);
+    Py_END_ALLOW_THREADS;
+    if (r)
+        return _mysql_Exception(self);
     Py_INCREF(Py_None);
     return Py_None;
 }
