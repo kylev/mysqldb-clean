@@ -40,7 +40,6 @@ PERFORMANCE OF THIS SOFTWARE.
 #include "errmsg.h"
 
 
-#define MyTuple_Resize(t,n,d) _PyTuple_Resize(t, n)
 #define MyMember(a,b,c,d,e) {a,b,c,d,e}
 #define MyMemberlist(x) struct PyMemberDef x
 #define MyAlloc(s,t) (s *) t.tp_alloc(&t,0)
@@ -1359,7 +1358,7 @@ _mysql__fetch_row(
             goto error;
         }
         if (!row) {
-            if (MyTuple_Resize(r, i, 0) == -1) goto error;
+            if (_PyTuple_Resize(r, i) == -1) goto error;
             break;
         }
         v = convert_row(self, row);
@@ -1422,7 +1421,7 @@ _mysql_ResultObject_fetch_row(
                 if (rowsadded == -1) goto error;
                 skiprows += rowsadded;
                 if (rowsadded < maxrows) break;
-                if (MyTuple_Resize(&r, skiprows+maxrows, 0) == -1)
+                if (_PyTuple_Resize(&r, skiprows+maxrows) == -1)
                         goto error;
             }
         } else {
