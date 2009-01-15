@@ -29,7 +29,6 @@ Conversion function:
 Don't modify conversions if you can avoid it. Instead, make copies
 (with the copy() method), modify the copies, and then pass them to
 MySQL.connect().
-
 """
 
 from _mysql import string_literal, escape_sequence, escape_dict, escape, NULL
@@ -38,23 +37,28 @@ from times import *
 import array
 import types
 
-
 try:
     set
 except NameError:
     from sets import Set as set
 
+
 def Bool2Str(s, d): return str(int(s))
+
 
 def Str2Set(s):
     return set([ i for i in s.split(',') if i ])
 
+
 def Set2Str(s, d):
     return string_literal(','.join(s), d)
+
 
 def Thing2Str(s, d):
     """Convert something into a string via str()."""
     return str(s)
+Long2Int = Thing2Str
+
 
 def Unicode2Str(s, d):
     """Convert a unicode object to a string using the default encoding.
@@ -62,40 +66,34 @@ def Unicode2Str(s, d):
     is connection-dependent."""
     return s.encode()
 
-Long2Int = Thing2Str
 
 def Float2Str(o, d):
     return '%.15g' % o
+
 
 def None2NULL(o, d):
     """Convert None to NULL."""
     return NULL # duh
 
-def Thing2Literal(o, d):
 
+def Thing2Literal(o, d):
     """Convert something into a SQL string literal.  If using
     MySQL-3.23 or newer, string_literal() is a method of the
     _mysql.MYSQL object, and this function will be overridden with
     that method when the connection is created."""
-
     return string_literal(o, d)
 
 
 def Instance2Str(o, d):
-
-    """
-
-    Convert an Instance to a string representation.  If the __str__()
+    """Convert an Instance to a string representation.  If the __str__()
     method produces acceptable output, then you don't need to add the
     class to conversions; it will be handled by the default
     converter. If the exact class is not found in d, it will use the
     first class it can find for which o is an instance.
-
     """
-
     if d.has_key(o.__class__):
         return d[o.__class__](o, d)
-    cl = filter(lambda x,o=o:
+    cl = filter(lambda x, o=o:
                 type(x) is types.ClassType
                 and isinstance(o, x), d.keys())
     if not cl and hasattr(types, 'ObjectType'):
@@ -105,15 +103,17 @@ def Instance2Str(o, d):
                     and d[x] is not Instance2Str,
                     d.keys())
     if not cl:
-        return d[types.StringType](o,d)
+        return d[types.StringType](o, d)
     d[o.__class__] = d[cl[0]]
     return d[cl[0]](o, d)
 
 def char_array(s):
     return array.array('c', s)
 
+
 def array2Str(o, d):
     return Thing2Literal(o.tostring(), d)
+
 
 conversions = {
     types.IntType: Thing2Str,
@@ -162,6 +162,7 @@ conversions = {
     }
 
 try:
+    # Added in python 2.4
     from decimal import Decimal
     conversions[FIELD_TYPE.DECIMAL] = Decimal
     conversions[FIELD_TYPE.NEWDECIMAL] = Decimal
