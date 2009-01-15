@@ -294,6 +294,7 @@ static PyObject *_mysql_server_init(
         goto finish;
     }
 #endif
+
     ret = Py_None;
     Py_INCREF(Py_None);
     _mysql_server_init_done = 1;
@@ -325,13 +326,12 @@ static PyObject *_mysql_server_end(
 static char _mysql_thread_safe__doc__[] =
 "Indicates whether the client is compiled as thread-safe.";
 
-static PyObject *_mysql_thread_safe(
-    PyObject *self,
-    PyObject *args) {
+static PyObject *_mysql_thread_safe(PyObject *self, PyObject *args) {
     PyObject *flag;
-    if (!PyArg_ParseTuple(args, "")) return NULL;
+
     check_server_init(NULL);
-    if (!(flag=PyInt_FromLong((long)mysql_thread_safe()))) return NULL;
+    if (!(flag=PyInt_FromLong((long)mysql_thread_safe())))
+        return NULL;
     return flag;
 }
 #endif
@@ -674,20 +674,18 @@ _mysql_ConnectionObject_close(
     _mysql_ConnectionObject *self,
     PyObject *args)
 {
-    if (args) {
-        if (!PyArg_ParseTuple(args, "")) return NULL;
-    }
-    if (self->open) {
-        Py_BEGIN_ALLOW_THREADS
-        mysql_close(&(self->connection));
-        Py_END_ALLOW_THREADS
-        self->open = 0;
-    } else {
+    if (!self->open) {
         PyErr_SetString(_mysql_ProgrammingError,
-                "closing a closed connection");
+                        "closing a closed connection");
         return NULL;
     }
+
+    Py_BEGIN_ALLOW_THREADS
+    mysql_close(&(self->connection));
+    Py_END_ALLOW_THREADS
+    self->open = 0;
     _mysql_ConnectionObject_clear(self);
+
     Py_INCREF(Py_None);
     return Py_None;
 }
@@ -702,7 +700,6 @@ _mysql_ConnectionObject_affected_rows(
     _mysql_ConnectionObject *self,
     PyObject *args)
 {
-    if (!PyArg_ParseTuple(args, "")) return NULL;
     check_connection(self);
     return PyLong_FromUnsignedLongLong(mysql_affected_rows(&(self->connection)));
 }
@@ -2099,7 +2096,7 @@ static PyMethodDef _mysql_ConnectionObject_methods[] = {
     {
         "affected_rows",
         (PyCFunction)_mysql_ConnectionObject_affected_rows,
-        METH_VARARGS,
+        METH_NOARGS,
         _mysql_ConnectionObject_affected_rows__doc__
     },
     {
@@ -2179,7 +2176,7 @@ static PyMethodDef _mysql_ConnectionObject_methods[] = {
     {
         "close",
         (PyCFunction)_mysql_ConnectionObject_close,
-        METH_VARARGS,
+        METH_NOARGS,
         _mysql_ConnectionObject_close__doc__
     },
     {
@@ -2688,7 +2685,7 @@ _mysql_methods[] = {
     {
         "thread_safe",
         (PyCFunction)_mysql_thread_safe,
-        METH_VARARGS,
+        METH_NOARGS,
         _mysql_thread_safe__doc__
     },
 #endif
