@@ -51,6 +51,10 @@ typedef int Py_ssize_t;
 #define PY_SSIZE_T_MIN INT_MIN
 #endif
 
+#ifndef Py_RETURN_NONE
+#define Py_RETURN_NONE return Py_INCREF(Py_None), Py_None
+#endif
+
 static PyObject *_mysql_MySQLError;
 static PyObject *_mysql_Warning;
 static PyObject *_mysql_Error;
@@ -2049,8 +2053,8 @@ _mysql_ResultObject_row_seek(
     }
     r = mysql_row_tell(self->result);
     mysql_row_seek(self->result, r+offset);
-    Py_INCREF(Py_None);
-    return Py_None;
+
+    Py_RETURN_NONE;
 }
 
 static char _mysql_ResultObject_row_tell__doc__[] =
@@ -2083,13 +2087,9 @@ _mysql_ResultObject_dealloc(
 }
 
 static PyObject *
-_mysql_ResultObject_repr(
-    _mysql_ResultObject *self)
+_mysql_ResultObject_repr(_mysql_ResultObject *self)
 {
-    char buf[300];
-    sprintf(buf, "<_mysql.result object at %lx>",
-        (long)self);
-    return PyString_FromString(buf);
+    return PyString_FromFormat("<_mysql.result object at %p>", self);
 }
 
 static PyMethodDef _mysql_ConnectionObject_methods[] = {
@@ -2466,7 +2466,7 @@ _mysql_ConnectionObject_setattr(
                 "can't delete connection attributes");
         return -1;
     }
-        {
+    {
         MyMemberlist(*l);
         for (l = _mysql_ConnectionObject_memberlist; l->name != NULL; l++)
             if (strcmp(l->name, name) == 0)
@@ -2806,7 +2806,8 @@ init_mysql(void)
     Py_DECREF(emod);
     if (!(_mysql_NULL = PyString_FromString("NULL")))
         goto error;
-    if (PyDict_SetItemString(dict, "NULL", _mysql_NULL)) goto error;
+    if (PyDict_SetItemString(dict, "NULL", _mysql_NULL))
+        goto error;
   error:
     if (PyErr_Occurred())
         PyErr_SetString(PyExc_ImportError,
