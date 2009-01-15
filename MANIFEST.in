@@ -4,7 +4,6 @@ include MANIFEST
 include ChangeLog
 include HISTORY
 include GPL
-include pymemcompat.h
 include dbapi20.py
 include test_MySQLdb_dbapi20.py
 include test_capabilities.py
