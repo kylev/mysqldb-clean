@@ -31,9 +31,6 @@ Don't modify conversions if you can avoid it. Instead, make copies
 MySQL.connect().
 """
 
-from _mysql import string_literal, escape_sequence, escape_dict, escape, NULL
-from constants import FIELD_TYPE, FLAG
-from times import *
 import array
 import types
 
@@ -42,8 +39,13 @@ try:
 except NameError:
     from sets import Set as set
 
+from _mysql import string_literal, escape_sequence, escape_dict, escape, NULL
+from MySQLdb.constants import FIELD_TYPE, FLAG
+from MySQLdb import times
 
-def Bool2Str(s, d): return str(int(s))
+
+def Bool2Str(s, d):
+    return str(int(s))
 
 
 def Str2Set(s):
@@ -129,8 +131,8 @@ conversions = {
     types.UnicodeType: Unicode2Str,
     types.ObjectType: Instance2Str,
     types.BooleanType: Bool2Str,
-    DateTimeType: DateTime2literal,
-    DateTimeDeltaType: DateTimeDelta2literal,
+    times.DateTimeType: times.DateTime2literal,
+    times.DateTimeDeltaType: times.DateTimeDelta2literal,
     set: Set2Str,
     FIELD_TYPE.TINY: int,
     FIELD_TYPE.SHORT: int,
@@ -143,10 +145,10 @@ conversions = {
     FIELD_TYPE.INT24: int,
     FIELD_TYPE.YEAR: int,
     FIELD_TYPE.SET: Str2Set,
-    FIELD_TYPE.TIMESTAMP: mysql_timestamp_converter,
-    FIELD_TYPE.DATETIME: DateTime_or_None,
-    FIELD_TYPE.TIME: TimeDelta_or_None,
-    FIELD_TYPE.DATE: Date_or_None,
+    FIELD_TYPE.TIMESTAMP: times.mysql_timestamp_converter,
+    FIELD_TYPE.DATETIME: times.DateTime_or_None,
+    FIELD_TYPE.TIME: times.TimeDelta_or_None,
+    FIELD_TYPE.DATE: times.Date_or_None,
     FIELD_TYPE.BLOB: [
         (FLAG.BINARY, str),
         ],
