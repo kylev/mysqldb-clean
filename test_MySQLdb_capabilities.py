@@ -14,7 +14,7 @@ class test_MySQLdb(test_capabilities.DatabaseTest):
                           charset='utf8', sql_mode="ANSI,STRICT_TRANS_TABLES,TRADITIONAL")
     create_table_extra = "ENGINE=INNODB CHARACTER SET UTF8"
     leak_test = False
-    
+
     def quote_identifier(self, ident):
         return "`%s`" % ident
 
@@ -36,7 +36,7 @@ class test_MySQLdb(test_capabilities.DatabaseTest):
         self.check_data_integrity(
             ('col1 TINYINT',),
             generator)
-        
+
     def test_stored_procedures(self):
         db = self.connection
         c = self.cursor
@@ -44,7 +44,7 @@ class test_MySQLdb(test_capabilities.DatabaseTest):
         c.executemany("INSERT INTO %s (pos,tree) VALUES (%%s,%%s)" % self.table,
                       list(enumerate('ash birch cedar larch pine'.split())))
         db.commit()
-        
+
         c.execute("""
         CREATE PROCEDURE test_sp(IN t VARCHAR(255))
         BEGIN
@@ -58,7 +58,7 @@ class test_MySQLdb(test_capabilities.DatabaseTest):
         self.assertEquals(len(rows), 1)
         self.assertEquals(rows[0][0], 3)
         c.nextset()
-        
+
         c.execute("DROP PROCEDURE test_sp")
         c.execute('drop table %s' % (self.table))
 
@@ -72,7 +72,7 @@ class test_MySQLdb(test_capabilities.DatabaseTest):
         self.check_data_integrity(
             ('col1 char(1)','col2 char(1)'),
             generator)
-        
+
 if __name__ == '__main__':
     if test_MySQLdb.leak_test:
         import gc

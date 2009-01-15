@@ -20,9 +20,9 @@ from _mysql_exceptions import Warning, Error, InterfaceError, DataError, \
 
 
 class BaseCursor(object):
-    
+
     """A base for Cursor classes. Useful attributes:
-    
+
     description
         A tuple of DB API 7-tuples describing the columns in
         the last executed query; see PEP-249 for details.
@@ -32,7 +32,7 @@ class BaseCursor(object):
         in the result set. Values correspond to those in
         MySQLdb.constants.FLAG. See MySQL documentation (C API)
         for more information. Non-standard extension.
-    
+
     arraysize
         default number of rows fetchmany() will fetch
 
@@ -41,12 +41,12 @@ class BaseCursor(object):
     from _mysql_exceptions import MySQLError, Warning, Error, InterfaceError, \
          DatabaseError, DataError, OperationalError, IntegrityError, \
          InternalError, ProgrammingError, NotSupportedError
-    
+
     _defer_warnings = False
-    
+
     def __init__(self, connection):
         from weakref import proxy
-    
+
         self.connection = proxy(connection)
         self.description = None
         self.description_flags = None
@@ -60,12 +60,12 @@ class BaseCursor(object):
         self._warnings = 0
         self._info = None
         self.rownumber = None
-        
+
     def __del__(self):
         self.close()
         self.errorhandler = None
         self._result = None
-        
+
     def close(self):
         """Close the cursor. No further queries will be possible."""
         if not self.connection: return
@@ -99,7 +99,7 @@ class BaseCursor(object):
         if self._executed:
             self.fetchall()
         del self.messages[:]
-        
+
         db = self._get_db()
         nr = db.next_result()
         if nr == -1:
@@ -110,7 +110,7 @@ class BaseCursor(object):
         return 1
 
     def _post_get_result(self): pass
-    
+
     def _do_get_result(self):
         db = self._get_db()
         self._result = self._get_result()
@@ -121,10 +121,10 @@ class BaseCursor(object):
         self.lastrowid = db.insert_id()
         self._warnings = db.warning_count()
         self._info = db.info()
-    
+
     def setinputsizes(self, *args):
         """Does nothing, required by DB API."""
-      
+
     def setoutputsizes(self, *args):
         """Does nothing, required by DB API."""
 
@@ -132,11 +132,11 @@ class BaseCursor(object):
         if not self.connection:
             self.errorhandler(self, ProgrammingError, "cursor closed")
         return self.connection
-    
+
     def execute(self, query, args=None):
 
         """Execute a query.
-        
+
         query -- string, query to execute on server
         args -- optional sequence or mapping, parameters to use with query.
 
@@ -178,16 +178,16 @@ class BaseCursor(object):
     def executemany(self, query, args):
 
         """Execute a multi-row query.
-        
+
         query -- string, query to execute on server
 
         args
 
             Sequence of sequences or mappings, parameters to use with
             query.
-            
+
         Returns long integer rows affected, if any.
-        
+
         This method improves performance on multiple-row INSERT and
         REPLACE. Otherwise it is equivalent to looping over args with
         execute().
@@ -225,11 +225,11 @@ class BaseCursor(object):
         r = self._query('\n'.join([query[:p], ',\n'.join(q), query[e:]]))
         if not self._defer_warnings: self._warning_check()
         return r
-    
+
     def callproc(self, procname, args=()):
 
         """Execute stored procedure procname with args
-        
+
         procname -- string, name of procedure to execute on server
 
         args -- Sequence of parameters to use with procedure
@@ -266,7 +266,7 @@ class BaseCursor(object):
                 q = q.encode(charset)
             self._query(q)
             self.nextset()
-            
+
         q = "CALL %s(%s)" % (procname,
                              ','.join(['@_%s_%d' % (procname, i)
                                        for i in range(len(args))]))
@@ -276,7 +276,7 @@ class BaseCursor(object):
         self._executed = q
         if not self._defer_warnings: self._warning_check()
         return args
-    
+
     def _do_query(self, q):
         db = self._get_db()
         self._last_executed = q
@@ -285,7 +285,7 @@ class BaseCursor(object):
         return self.rowcount
 
     def _query(self, q): return self._do_query(q)
-    
+
     def _fetch_row(self, size=1):
         if not self._result:
             return ()
@@ -304,7 +304,7 @@ class BaseCursor(object):
     InternalError = InternalError
     ProgrammingError = ProgrammingError
     NotSupportedError = NotSupportedError
-   
+
 
 class CursorStoreResultMixIn(object):
 
@@ -351,11 +351,11 @@ class CursorStoreResultMixIn(object):
             result = self._rows
         self.rownumber = len(self._rows)
         return result
-    
+
     def scroll(self, value, mode='relative'):
         """Scroll the cursor in the result set to a new position according
         to mode.
-        
+
         If mode is 'relative' (default), value is taken as offset to
         the current position in the result set, if set to 'absolute',
         value states an absolute target position."""
@@ -375,7 +375,7 @@ class CursorStoreResultMixIn(object):
         self._check_executed()
         result = self.rownumber and self._rows[self.rownumber:] or self._rows
         return iter(result)
-    
+
 
 class CursorUseResultMixIn(object):
 
@@ -386,7 +386,7 @@ class CursorUseResultMixIn(object):
     the connection."""
 
     _defer_warnings = True
-    
+
     def _get_result(self): return self._get_db().use_result()
 
     def fetchone(self):
@@ -398,7 +398,7 @@ class CursorUseResultMixIn(object):
             return None
         self.rownumber = self.rownumber + 1
         return r[0]
-             
+
     def fetchmany(self, size=None):
         """Fetch up to size rows from the cursor. Result set may be smaller
         than size. If size is not defined, cursor.arraysize is used."""
@@ -408,7 +408,7 @@ class CursorUseResultMixIn(object):
         if not r:
             self._warning_check()
         return r
-         
+
     def fetchall(self):
         """Fetchs all available rows from the cursor."""
         self._check_executed()
@@ -425,7 +425,7 @@ class CursorUseResultMixIn(object):
         if row is None:
             raise StopIteration
         return row
-    
+
 
 class CursorTupleRowsMixIn(object):
 
@@ -488,7 +488,7 @@ class DictCursor(CursorStoreResultMixIn, CursorDictRowsMixIn,
 
      """This is a Cursor class that returns rows as dictionaries and
     stores the result set in the client."""
-   
+
 
 class SSCursor(CursorUseResultMixIn, CursorTupleRowsMixIn,
                BaseCursor):

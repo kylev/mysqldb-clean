@@ -19,12 +19,12 @@ def get_config():
     libraries = [ 'kernel32', 'advapi32', 'wsock32', client ]
     include_dirs = [ os.path.join(mysql_root, r'include') ]
     extra_compile_args = [ '/Zl' ]
-    
+
     name = "MySQL-python"
     if enabled(options, 'embedded'):
         name = name + "-embedded"
     metadata['name'] = name
-    
+
     define_macros = [
         ('version_info', metadata['version_info']),
         ('__version__', metadata['version']),
@@ -44,4 +44,4 @@ def get_config():
 
 if __name__ == "__main__":
     print """You shouldn't be running this directly; it is used by setup.py."""
-    
+

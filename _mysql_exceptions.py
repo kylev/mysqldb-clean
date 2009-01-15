@@ -8,7 +8,7 @@ These classes are dictated by the DB API v2.0:
 from exceptions import Exception, StandardError, Warning
 
 class MySQLError(StandardError):
-    
+
     """Exception related to operation with MySQL."""
 
 
