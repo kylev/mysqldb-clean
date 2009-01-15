@@ -1,2 +1,6 @@
+dist/
+build/
+release.py
+*.pyo
 *.pyc
 *.so
